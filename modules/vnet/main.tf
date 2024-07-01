@@ -33,12 +33,8 @@ resource "azurerm_network_security_rule" "allow_ssh" {
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
   resource_group_name         = var.resource_group_name
-  network_security_group_nameContinuing from where we left off, let's complete the VNet module and then proceed with the DNS module. After that, we will bring everything together in the main Terraform file.
-
-### VNet Module (Continued)
-
-#### Main Configuration (`modules/vnet/main.tf`)
-```hcl
+  network_security_group_name = azurerm_network_security_group.nsg.name
+}
 resource "azurerm_network_security_rule" "allow_http" {
   name                        = "allow_http"
   priority                    = 1002
@@ -67,11 +63,6 @@ resource "azurerm_network_security_rule" "allow_https" {
   network_security_group_name = azurerm_network_security_group.nsg.name
 }
 
-resource "azurerm_ddos_protection_plan" "ddos_protection" {
-  name                = var.ddos_protection_name
-  location            = var.location
-  resource_group_name = var.resource_group_name
-}
 
 output "vnet_id" {
   value = azurerm_virtual_network.vnet.id

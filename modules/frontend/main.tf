@@ -7,21 +7,22 @@ resource "azurerm_resource_group" "rg" {
   location = var.location
 }
 
-resource "azurerm_app_service_plan" "app_service_plan" {
+
+resource "azurerm_service_plan" "app_service_plan" {
   name                = var.app_service_plan_name
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  sku {
-    tier = "Free"
-    size = "F1"
-  }
+
+  sku_name = "F1"
+  os_type  = "Linux"
 }
 
-resource "azurerm_app_service" "app_service" {
+
+resource "azurerm_linux_web_app" "app_service" {
   name                = var.app_service_name
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  app_service_plan_id = azurerm_app_service_plan.app_service_plan.id
+  service_plan_id     = azurerm_service_plan.app_service_plan.id
 
   site_config {
     default_documents = ["index.html"]
@@ -31,14 +32,13 @@ resource "azurerm_app_service" "app_service" {
     "WEBSITE_RUN_FROM_PACKAGE" = "1"
   }
 
-  source_control {
-    repo_url           = "https://github.com/misbaharkd/terraform-app-content"
-    branch             = "main"
-    use_mercurial      = false
+  identity {
+    type = "SystemAssigned"
   }
 }
 
+
 output "app_service_url" {
-  value = "http://${azurerm_app_service.app_service.default_site_hostname}"
+  value = "http://${azurerm_linux_web_app.app_service.default_hostname}"
 }
 

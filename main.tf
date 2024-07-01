@@ -1,7 +1,7 @@
 terraform {
   backend "azurerm" {
     resource_group_name   = "rg-terraform-state"
-    storage_account_name  = "tfstate<random_suffix>"
+    storage_account_name  = "tfstate15638"
     container_name        = "tfstate"
     key                   = "terraform.tfstate"
   }
@@ -10,6 +10,12 @@ terraform {
 
 provider "azurerm" {
   features {}
+}
+
+
+resource "azurerm_resource_group" "rg" {
+  name     = var.resource_group_name
+  location = var.location
 }
 
 module "vnet" {
@@ -53,9 +59,11 @@ module "api_gateway" {
 
 module "azure_db" {
   source = "./modules/azure_db"
-
+  
+  database_name         = "test123"
   resource_group_name   = "rg-terraform-app"
   location              = "West Europe"
+  admin_login           = "test123"
   mysql_server_name     = "mysql-server-terraform-app"
   admin_username        = "mysqladmin"
   admin_password        = "ComplexP@ssword!"
@@ -81,31 +89,49 @@ module "dns" {
   ip_address          = "YOUR_PUBLIC_IP" # Replace with the actual public IP
 }
 
-output "frontend_url" {
+
+resource "azurerm_api_management" "api_gateway" {
+  name                = var.api_management_name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  publisher_name      = var.publisher_name
+  publisher_email     = var.publisher_email
+  sku_name            = "Developer_1"
+}
+
+##resource "azurerm_mysql_flexible_server" "mysql" {
+#  name                = var.mysql_server_name
+#  location            = azurerm_resource_group.rg.location
+#  resource_group_name = azurerm_resource_group.rg.name
+##  administrator_login = var.admin_login
+#  administrator_password = var.admin_password
+
+#}
+
+
+output "frontend_url_orig" {
   value = module.frontend.app_service_url
 }
 
-output "backend_kube_config" {
+output "backend_kube_config_orig" {
   value = module.backend.kube_config
 }
 
-output "api_gateway_url" {
-  value = azurerm_api_management.api_gateway.gateway_url
-}
 
-output "mysql_fqdn" {
-  value = module.azure_db.mysql_fqdn
-}
-
-output "cdn_url" {
+output "cdn_url_orig" {
   value = module.cdn.cdn_endpoint_url
 }
 
-output "dns_zone_name" {
+output "dns_zone_name_orig" {
   value = module.dns.dns_zone_name
 }
 
-output "dns_a_record_fqdn" {
+output "dns_a_record_fqdn_orig" {
   value = module.dns.dns_a_record_fqdn
+}
+
+
+output "api_gateway_ur_orig" {
+  value = azurerm_api_management.api_gateway.gateway_url
 }
 

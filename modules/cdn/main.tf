@@ -21,6 +21,6 @@ resource "azurerm_cdn_endpoint" "cdn_endpoint" {
 }
 
 output "cdn_endpoint_url" {
-  value = azurerm_cdn_endpoint.cdn_endpoint.host_name
+  value = azurerm_cdn_endpoint.cdn_endpoint.fqdn
 }
 

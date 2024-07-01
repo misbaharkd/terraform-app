@@ -10,9 +10,6 @@ output "api_gateway_url" {
   value = azurerm_api_management.api_gateway.gateway_url
 }
 
-output "mysql_fqdn" {
-  value = module.azure_db.mysql_fqdn
-}
 
 output "cdn_url" {
   value = module.cdn.cdn_endpoint_url
