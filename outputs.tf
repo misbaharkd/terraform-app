@@ -1,4 +1,28 @@
-output "app_service_url" {
-  value = "http://${azurerm_app_service.app_service.default_site_hostname}"
+output "frontend_url" {
+  value = module.frontend.app_service_url
+}
+
+output "backend_kube_config" {
+  value = module.backend.kube_config
+}
+
+output "api_gateway_url" {
+  value = azurerm_api_management.api_gateway.gateway_url
+}
+
+output "mysql_fqdn" {
+  value = module.azure_db.mysql_fqdn
+}
+
+output "cdn_url" {
+  value = module.cdn.cdn_endpoint_url
+}
+
+output "dns_zone_name" {
+  value = module.dns.dns_zone_name
+}
+
+output "dns_a_record_fqdn" {
+  value = module.dns.dns_a_record_fqdn
 }
 

@@ -1,0 +1,91 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(name: 'ACTION', choices: ['build', 'destroy'], description: 'Choose the action to perform')
+    }
+
+    environment {
+        GITHUB_REPO = 'https://github.com/misbaharkd/terraform-app'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    echo 'Checking out the repository'
+                    checkout([$class: 'GitSCM', branches: [[name: '*/main']],
+                        doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [],
+                        userRemoteConfigs: [[url: env.GITHUB_REPO]]])
+                }
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                script {
+                    echo 'Initializing Terraform'
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                script {
+                    echo 'Showing Terraform plan'
+                    sh 'terraform plan -out=plan.out'
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            when {
+                expression { params.ACTION == 'build' }
+            }
+            steps {
+                script {
+                    echo 'Applying Terraform plan'
+                    sh 'terraform apply "plan.out"'
+                }
+            }
+        }
+
+        stage('Terraform Destroy') {
+            when {
+                expression { params.ACTION == 'destroy' }
+            }
+            steps {
+                script {
+                    echo 'Destroying Terraform-managed infrastructure'
+                    sh 'terraform destroy -auto-approve'
+                }
+            }
+        }
+
+        stage('Output Results') {
+            when {
+                expression { params.ACTION == 'build' }
+            }
+            steps {
+                script {
+                    echo 'Getting the outputs'
+                    sh 'terraform output'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline finished.'
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check the logs for more details.'
+        }
+    }
+}
+
