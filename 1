@@ -12,12 +12,6 @@ provider "azurerm" {
   features {}
 }
 
-
-resource "azurerm_resource_group" "rg" {
-  name     = var.resource_group_name
-  location = var.location
-}
-
 module "vnet" {
   source = "./modules/vnet"
 
@@ -58,23 +52,15 @@ module "api_gateway" {
 }
 
 module "azure_db" {
-  source                = "./modules/azure_db"
-  mysql_server_name     = "test-mysql-server"
-  location              = "East US"
-  resource_group_name   = "test-resource-group"
-  mysql_admin_username  = "mysqladmin"
-  mysql_admin_password  = "ComplexP@ssword!"
-  mysql_sku_name        = "GP_Gen5_2"
-  mysql_storage_mb      = 5120
-  mysql_high_availability_mode = "ZoneRedundant"
-  mysql_version         = "5.7"
-  mysql_database_name   = "test_database"
-  tags = {
-    environment = "test"
-  }
+  source = "./modules/azure_db"
+
+  resource_group_name   = "rg-terraform-app"
+  location              = "West Europe"
+  mysql_server_name     = "mysql-server-terraform-app"
+  admin_username        = "mysqladmin"
+  admin_password        = "ComplexP@ssword!"
+  mysql_database_name   = "terraformappdb"
 }
-
-
 
 module "cdn" {
   source = "./modules/cdn"
@@ -105,14 +91,21 @@ resource "azurerm_api_management" "api_gateway" {
   sku_name            = "Developer_1"
 }
 
-##resource "azurerm_mysql_flexible_server" "mysql" {
-#  name                = var.mysql_server_name
-#  location            = azurerm_resource_group.rg.location
-#  resource_group_name = azurerm_resource_group.rg.name
-##  administrator_login = var.admin_login
-#  administrator_password = var.admin_password
+resource "azurerm_mysql_flexible_server" "mysql" {
+  name                = var.mysql_server_name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  administrator_login = var.admin_login
+  administrator_password = var.admin_password
 
-#}
+  sku_name            = "Standard_B1ms"
+  version             = "5.7"
+  storage_mb          = 5120
+
+  tags = {
+    environment = "production"
+  }
+}
 
 
 output "frontend_url_orig" {
@@ -136,6 +129,9 @@ output "dns_a_record_fqdn_orig" {
   value = module.dns.dns_a_record_fqdn
 }
 
+output "mysql_fqdn_orig" {
+  value = azurerm_mysql_flexible_server.mysql.fqdn
+}
 
 output "api_gateway_ur_orig" {
   value = azurerm_api_management.api_gateway.gateway_url

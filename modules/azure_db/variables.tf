@@ -1,35 +1,57 @@
-variable "database_name" {
-  description = "Name of the MySQL database"
+variable "mysql_server_name" {
+  description = "The name of the MySQL server."
+  type        = string
+}
+
+variable "location" {
+  description = "The location where the resources will be created."
   type        = string
 }
 
 variable "resource_group_name" {
-  description = "Resource group name"
-}
-
-variable "location" {
-  description = "Azure location"
-  default     = "West Europe"
-}
-
-variable "admin_login" {
-  description = "The administrator login name for MySQL."
+  description = "The name of the resource group."
   type        = string
 }
 
-variable "mysql_server_name" {
-  description = "MySQL server name"
+variable "mysql_admin_username" {
+  description = "The admin username for the MySQL server."
+  type        = string
 }
 
-variable "admin_username" {
-  description = "Admin username"
+variable "mysql_admin_password" {
+  description = "The admin password for the MySQL server."
+  type        = string
+  sensitive   = true
 }
 
-variable "admin_password" {
-  description = "Admin password"
+variable "mysql_sku_name" {
+  description = "The SKU name for the MySQL server."
+  type        = string
+}
+
+variable "mysql_storage_mb" {
+  description = "The storage size in MB for the MySQL server."
+  type        = number
+}
+
+variable "mysql_high_availability_mode" {
+  description = "The high availability mode for the MySQL server."
+  type        = string
+}
+
+variable "mysql_version" {
+  description = "The MySQL version."
+  type        = string
 }
 
 variable "mysql_database_name" {
-  description = "MySQL database name"
+  description = "The name of the MySQL database."
+  type        = string
+}
+
+variable "tags" {
+  description = "Tags to be applied to the resources."
+  type        = map(string)
+  default     = {}
 }
 
