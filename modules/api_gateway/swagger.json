@@ -1,0 +1,36 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Example API",
+    "description": "This is a simple API to demonstrate a GET endpoint.",
+    "version": "1.0.0"
+  },
+  "host": "example.com",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/hello": {
+      "get": {
+        "summary": "Get Hello World",
+        "description": "Returns a 'Hello World' message",
+        "operationId": "GetHelloWorld",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "type": "string",
+              "example": "Hello World"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {}
+}
+

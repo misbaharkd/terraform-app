@@ -4,6 +4,7 @@ output "frontend_url" {
 
 output "backend_kube_config" {
   value = module.backend.kube_config
+  sensitive = true
 }
 
 output "api_gateway_url" {

@@ -2,9 +2,9 @@ provider "azurerm" {
   features {}
 }
 
-resource "azurerm_virtual_network" "vnet" {
+resource "azurerm_virtual_network" "vnet-testduo" {
   name                = var.vnet_name
-  location            = var.location
+  location            = "westeurope"
   resource_group_name = var.resource_group_name
   address_space       = ["10.0.0.0/16"]
 }
@@ -12,9 +12,27 @@ resource "azurerm_virtual_network" "vnet" {
 resource "azurerm_subnet" "subnet" {
   name                 = var.subnet_name
   resource_group_name  = var.resource_group_name
-  virtual_network_name = azurerm_virtual_network.vnet.name
+  virtual_network_name = azurerm_virtual_network.vnet-testduo.name
   address_prefixes     = ["10.0.1.0/24"]
 }
+
+resource "azurerm_subnet" "subnet2" {
+  name                 = "db-sn"
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = azurerm_virtual_network.vnet-testduo.name
+  address_prefixes     = ["10.0.2.0/24"]
+  service_endpoints    = ["Microsoft.Storage"]
+  delegation {
+    name = "fs"
+    service_delegation {
+      name = "Microsoft.DBforMySQL/flexibleServers"
+      actions = [
+        "Microsoft.Network/virtualNetworks/subnets/join/action",
+      ]
+    }
+  }
+}
+
 
 resource "azurerm_network_security_group" "nsg" {
   name                = var.nsg_name
@@ -64,8 +82,8 @@ resource "azurerm_network_security_rule" "allow_https" {
 }
 
 
-output "vnet_id" {
-  value = azurerm_virtual_network.vnet.id
+output "vnet-testduo_id" {
+  value = azurerm_virtual_network.vnet-testduo.id
 }
 
 output "subnet_id" {
@@ -74,5 +92,9 @@ output "subnet_id" {
 
 output "nsg_id" {
   value = azurerm_network_security_group.nsg.id
+}
+
+output "subnet_id2" {
+  value = azurerm_subnet.subnet2.id
 }
 

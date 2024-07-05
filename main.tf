@@ -18,12 +18,12 @@ resource "azurerm_resource_group" "rg" {
   location = var.location
 }
 
-module "vnet" {
-  source = "./modules/vnet"
+module "vnet-testduo" {
+  source = "./modules/vnet-testduo"
 
   resource_group_name = "rg-terraform-app"
   location            = "West Europe"
-  vnet_name           = "vnet-terraform-app"
+  vnet_name           = "vnet-testduo-terraform-app"
   subnet_name         = "subnet-terraform-app"
   nsg_name            = "nsg-terraform-app"
   ddos_protection_name = "ddos-protection-terraform-app"
@@ -47,6 +47,42 @@ module "backend" {
   dns_prefix          = "aks"
 }
 
+# Import the API definition
+resource "azurerm_api_management_api" "example" {
+  name                = "example-api"
+  resource_group_name = var.resource_group_name
+  api_management_name = var.api_management_name
+  revision            = "1"
+  display_name        = "Example API"
+  path                = "example"
+  protocols           = ["https"]
+
+  import {
+    content_format = "swagger-link-json"
+    content_value  = var.swagger_url
+  }
+}
+
+
+resource "azurerm_api_management_api_operation" "get_hello_world" {
+  operation_id        = "GetHelloWorld"
+  api_name            = azurerm_api_management_api.example.name
+  api_management_name = var.api_management_name
+  resource_group_name = var.resource_group_name
+  display_name        = "Get Hello World"
+  method              = "GET"
+  url_template        = "/hello"
+
+  response {
+    status_code      = 200
+    description = "Successful response"
+  }
+
+  request {
+    description = "Example request"
+  }
+}
+
 module "api_gateway" {
   source = "./modules/api_gateway"
 
@@ -55,6 +91,8 @@ module "api_gateway" {
   api_gateway_name    = "api-gateway-terraform-app"
   publisher_name      = "Your Name"
   publisher_email     = "your.email@example.com"
+  swagger_url         = "https://testurl.com"
+  api_management_name  = "hello-world"
 }
 
 module "azure_db" {
@@ -64,7 +102,7 @@ module "azure_db" {
   resource_group_name   = "test-resource-group"
   mysql_admin_username  = "mysqladmin"
   mysql_admin_password  = "ComplexP@ssword!"
-  mysql_sku_name        = "GP_Gen5_2"
+  mysql_sku_name        = "GP_Standard_D2ds_v4"
   mysql_storage_mb      = 5120
   mysql_high_availability_mode = "ZoneRedundant"
   mysql_version         = "5.7"
@@ -121,6 +159,7 @@ output "frontend_url_orig" {
 
 output "backend_kube_config_orig" {
   value = module.backend.kube_config
+  sensitive = true
 }
 
 

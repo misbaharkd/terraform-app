@@ -19,3 +19,14 @@ variable "publisher_email" {
   description = "Publisher email"
 }
 
+variable "api_management_name" {
+  description = "The name of the API Management service."
+  type        = string
+}
+
+
+variable "swagger_url" {
+  description = "The URL of the Swagger file."
+  type        = string
+}
+
