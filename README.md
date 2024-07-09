@@ -1,6 +1,4 @@
-<<<<<<< HEAD
-# backendapp
-Repo for backend application deployed in Azure AKS
+
 =======
 # Terraform App Deployment
 
